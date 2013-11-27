@@ -154,6 +154,7 @@ void (*sp_debug_handler)(const char *format, ...) = sp_default_debug_handler;
 		case SP_ERR_FAIL: RETURN_CODE(SP_ERR_FAIL); \
 		case SP_ERR_MEM: RETURN_CODE(SP_ERR_MEM); \
 		case SP_ERR_SUPP: RETURN_CODE(SP_ERR_SUPP); \
+		default: RETURN_VALUE("%d", x); \
 	} \
 } while (0)
 #define RETURN_OK() RETURN_CODE(SP_OK);
@@ -808,9 +809,10 @@ enum sp_return sp_drain(struct sp_port *port)
 	RETURN_OK();
 }
 
-enum sp_return sp_blocking_write(struct sp_port *port, const void *buf, size_t count, unsigned int timeout)
+static enum sp_return blocking_write(struct sp_port *port, const void *buf, size_t count,
+		unsigned int timeout, int interruptible)
 {
-	TRACE("%p, %p, %d, %d", port, buf, count, timeout);
+	TRACE("%p, %p, %d, %d, %d", port, buf, count, timeout, interruptible);
 
 	CHECK_OPEN_PORT();
 
@@ -818,9 +820,11 @@ enum sp_return sp_blocking_write(struct sp_port *port, const void *buf, size_t c
 		RETURN_ERROR(SP_ERR_ARG, "Null buffer");
 
 	if (timeout)
-		DEBUG("Writing %d bytes to port %s, timeout %d ms", count, port->name, timeout);
+		DEBUG("Writing %d bytes to port %s, timeout %d ms, %s", count, port->name, timeout,
+				interruptible ? "interruptible" : "non-interruptible");
 	else
-		DEBUG("Writing %d bytes to port %s, no timeout", count, port->name);
+		DEBUG("Writing %d bytes to port %s, no timeout, %s", count, port->name, timeout,
+				interruptible ? "interruptible" : "non-interruptible");
 
 	if (count == 0)
 		RETURN_VALUE("0", 0);
@@ -890,9 +894,18 @@ enum sp_return sp_blocking_write(struct sp_port *port, const void *buf, size_t c
 			timersub(&end, &now, &delta);
 		}
 		result = select(port->fd + 1, NULL, &fds, NULL, timeout ? &delta : NULL);
-		if (result < 0)
-			RETURN_FAIL("select() failed");
-		if (result == 0) {
+
+		if (result < 0) {
+			if (errno == EINTR) {
+				DEBUG("select() was interrupted.");
+				if (interruptible)
+					RETURN_VALUE("%d", bytes_written);
+				else
+					continue;
+			} else {
+				RETURN_FAIL("select() failed");
+			}
+		} else if (result == 0) {
 			DEBUG("write timed out");
 			RETURN_VALUE("%d", bytes_written);
 		}
@@ -915,6 +928,21 @@ enum sp_return sp_blocking_write(struct sp_port *port, const void *buf, size_t c
 
 	RETURN_VALUE("%d", bytes_written);
 #endif
+}
+
+enum sp_return sp_blocking_write(struct sp_port *port, const void *buf, size_t count, unsigned int timeout)
+{
+	TRACE("%p, %p, %d, %d", port, buf, count, timeout);
+
+	RETURN_CODEVAL(blocking_write(port, buf, count, timeout, 0));
+}
+
+enum sp_return sp_interruptible_write(struct sp_port *port, const void *buf, size_t count,
+		unsigned int timeout)
+{
+	TRACE("%p, %p, %d, %d", port, buf, count, timeout);
+
+	RETURN_CODEVAL(blocking_write(port, buf, count, timeout, 1));
 }
 
 enum sp_return sp_nonblocking_write(struct sp_port *port, const void *buf, size_t count)
@@ -989,9 +1017,10 @@ enum sp_return sp_nonblocking_write(struct sp_port *port, const void *buf, size_
 #endif
 }
 
-enum sp_return sp_blocking_read(struct sp_port *port, void *buf, size_t count, unsigned int timeout)
+enum sp_return blocking_read(struct sp_port *port, void *buf, size_t count, unsigned int timeout,
+		int interruptible)
 {
-	TRACE("%p, %p, %d, %d", port, buf, count, timeout);
+	TRACE("%p, %p, %d, %d, %d", port, buf, count, timeout, interruptible);
 
 	CHECK_OPEN_PORT();
 
@@ -999,9 +1028,11 @@ enum sp_return sp_blocking_read(struct sp_port *port, void *buf, size_t count, u
 		RETURN_ERROR(SP_ERR_ARG, "Null buffer");
 
 	if (timeout)
-		DEBUG("Reading %d bytes from port %s, timeout %d ms", count, port->name, timeout);
+		DEBUG("Reading %d bytes from port %s, timeout %d ms, %s", count, port->name, timeout,
+				interruptible ? "interruptible" : "non-interruptible");
 	else
-		DEBUG("Reading %d bytes from port %s, no timeout", count, port->name);
+		DEBUG("Reading %d bytes from port %s, no timeout, %s", count, port->name,
+				interruptible ? "interruptible" : "non-interruptible");
 
 	if (count == 0)
 		RETURN_VALUE("0", 0);
@@ -1060,9 +1091,18 @@ enum sp_return sp_blocking_read(struct sp_port *port, void *buf, size_t count, u
 			timersub(&end, &now, &delta);
 		}
 		result = select(port->fd + 1, &fds, NULL, NULL, timeout ? &delta : NULL);
-		if (result < 0)
-			RETURN_FAIL("select() failed");
-		if (result == 0) {
+
+		if (result < 0) {
+			if (errno == EINTR) {
+				DEBUG("select() was interrupted.");
+				if (interruptible)
+					RETURN_VALUE("%d", bytes_read);
+				else
+					continue;
+			} else {
+				RETURN_FAIL("select() failed");
+			}
+		} else if (result == 0) {
 			DEBUG("read timed out");
 			RETURN_VALUE("%d", bytes_read);
 		}
@@ -1085,6 +1125,20 @@ enum sp_return sp_blocking_read(struct sp_port *port, void *buf, size_t count, u
 
 	RETURN_VALUE("%d", bytes_read);
 #endif
+}
+
+enum sp_return sp_blocking_read(struct sp_port *port, void *buf, size_t count, unsigned int timeout)
+{
+	TRACE("%p, %p, %d, %d", port, buf, count, timeout);
+
+	RETURN_CODEVAL(blocking_read(port, buf, count, timeout, 0));
+}
+
+enum sp_return sp_interruptible_read(struct sp_port *port, void *buf, size_t count, unsigned int timeout)
+{
+	TRACE("%p, %p, %d, %d", port, buf, count, timeout);
+
+	RETURN_CODEVAL(blocking_read(port, buf, count, timeout, 1));
 }
 
 enum sp_return sp_nonblocking_read(struct sp_port *port, void *buf, size_t count)
