@@ -35,7 +35,7 @@ if MACOSX
 libserialport_la_SOURCES += macosx.c
 endif
 
-libserialport_la_LIBADD = $(LIBOBJS)
+libserialport_la_LIBADD = $(LIBOBJS) -lsetupapi
 
 libserialport_la_LDFLAGS = $(SP_LIB_LDFLAGS)
 
