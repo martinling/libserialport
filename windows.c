@@ -18,6 +18,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <windows.h>
+#include <initguid.h>
+#include <usbiodef.h>
+
 #include "libserialport.h"
 #include "libserialport_internal.h"
 
