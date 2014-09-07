@@ -37,7 +37,7 @@ endif
 
 libserialport_la_LIBADD = $(LIBOBJS) -lsetupapi
 
-libserialport_la_LDFLAGS = $(SP_LIB_LDFLAGS)
+libserialport_la_LDFLAGS = $(SP_LIB_LDFLAGS) -no-undefined
 
 library_includedir = $(includedir)
 library_include_HEADERS = libserialport.h
