@@ -53,6 +53,16 @@ library_include_HEADERS = libserialport.h
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libserialport.pc
 
+if BINDINGS_CXX
+lib_LTLIBRARIES += libserialportcxx.la
+libserialportcxx_la_SOURCES = classes.cpp
+libserialportcxx_la_LIBADD = libserialport.la
+libserialportcxx_la_LDFLAGS = $(SP_LIB_LDFLAGS)
+libserialportcxx_la_includedir = $(includedir)
+libserialportcxx_la_include_HEADERS = libserialportcxx.hpp
+pkgconfig_DATA += libserialportcxx.pc
+endif
+
 EXTRA_DIST = Doxyfile
 
 MAINTAINERCLEANFILES = ChangeLog

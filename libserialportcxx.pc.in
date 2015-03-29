@@ -1,0 +1,12 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: libserialportcxx
+Description: C++ bindings for libserialport
+URL: http://sigrok.org/wiki/Libserialport
+Requires: libserialport
+Version: @VERSION@
+Libs: -L${libdir} -lserialportcxx
+Cflags: -I${includedir}

@@ -14,6 +14,8 @@ configure
 libserialport.la
 libserialport.pc
 libserialport.h
+libserialportcxx.la
+libserialportcxx.pc
 libtool
 stamp-h1
 *.o

@@ -41,10 +41,13 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 
 # Enable more compiler warnings.
-CFLAGS="$CFLAGS -std=c99 -Wall -Wextra -pedantic"
+COMMON_FLAGS="$CFLAGS -Wall -Wextra -pedantic"
+CFLAGS="-std=c99 $COMMON_FLAGS"
+CXXFLAGS="-std=c++11 $COMMON_FLAGS"
 
 # Checks for programs.
 AC_PROG_CC
+AC_PROG_CXX
 AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PROG_LN_S
@@ -191,7 +194,22 @@ AC_SUBST(SP_PACKAGE_VERSION_MINOR)
 AC_SUBST(SP_PACKAGE_VERSION_MICRO)
 AC_SUBST(SP_PACKAGE_VERSION)
 
-AC_CONFIG_FILES([Makefile libserialport.h libserialport.pc])
+AC_CONFIG_FILES([Makefile libserialport.h libserialport.pc libserialportcxx.pc])
+
+AC_ARG_ENABLE(cxx,
+	AC_HELP_STRING([--enable-cxx],
+	[build C++ bindings [default=yes]]),
+	[BINDINGS_CXX="$enableval"], [BINDINGS_CXX="yes"])
+
+m4_ifdef([AX_CXX_COMPILE_STDCXX_11],
+	[AX_CXX_COMPILE_STDCXX_11(,[optional])],
+	[AC_MSG_NOTICE([Missing macro m4_toupper(aX_CXX_COMPILE_STDCXX_11), no C++11 check])])
+
+if test "x$HAVE_CXX11" != "x1"; then
+    BINDINGS_CXX="no"; cxx_msg="C++11 compiler required"
+fi
+
+AM_CONDITIONAL(BINDINGS_CXX, test x$BINDINGS_CXX = xyes)
 
 AC_OUTPUT
 
@@ -203,4 +221,6 @@ echo "  - Library version (current:revision:age): $SP_LIB_VERSION"
 echo "  - Prefix: $prefix"
 echo "  - Building on: $build"
 echo "  - Building for: $host"
+echo
+echo "  - Build C++ bindings: $BINDINGS_CXX"
 echo
