@@ -227,7 +227,7 @@ static void enumerate_hub_ports(struct sp_port *port, HANDLE hub_device,
 			if (connection_info_ex->DeviceDescriptor.iSerialNumber) {
 				port->usb_serial = get_string_descriptor(hub_device, index,
 				           connection_info_ex->DeviceDescriptor.iSerialNumber);
-				if (port->usb_serial == NULL) {
+				if (port->usb_serial == NULL && port->composite) {
 					//composite device, get the parent's serial number
 					char device_id[MAX_DEVICE_ID_LEN];
 					if (CM_Get_Parent(&dev_inst, dev_inst, 0) == CR_SUCCESS) {
@@ -277,6 +277,13 @@ static void enumerate_host_controller(struct sp_port *port,
                                       DEVINST dev_inst)
 {
 	char *root_hub_name;
+
+	if (port->composite) {
+		//remove last part of the path
+		char * pch;
+		pch=strrchr(port->usb_path,'.');
+		port->usb_path[pch-port->usb_path] = '\0';
+	}
 
 	if ((root_hub_name = get_root_hub_name(host_controller_device))) {
 		enumerate_hub(port, root_hub_name, "", dev_inst);
@@ -366,6 +373,7 @@ SP_PRIV enum sp_return get_port_details(struct sp_port *port)
 		char value[8], class[16];
 		DWORD size, type;
 		CONFIGRET cr;
+		port->composite = FALSE;
 
 		/* Check if this is the device we are looking for. */
 		device_key = SetupDiOpenDevRegKey(device_info, &device_info_data,
@@ -427,12 +435,12 @@ SP_PRIV enum sp_return get_port_details(struct sp_port *port)
 				                                      &compat_ids,
 				                                      &size, 0) == CR_SUCCESS) {
 					while (*p) {
-						if (!strncmp(p, "USB\\COMPOSITE", 13))
+						if (!strncmp(p, "USB\\COMPOSITE", 13)) {
+							port->composite = TRUE;
 							break;
+						}
 						p += strlen(p) + 1;
 					}
-					if (*p)
-						continue;
 				}
 
 				/* Stop the recursion when reaching the USB root. */

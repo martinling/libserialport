@@ -111,6 +111,7 @@ struct sp_port {
 	DWORD write_buf_size;
 	BOOL writing;
 	BOOL wait_running;
+	BOOL composite;
 #else
 	int fd;
 #endif
