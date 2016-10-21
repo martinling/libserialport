@@ -262,7 +262,9 @@ static void enumerate_host_controller(struct sp_port *port,
 		//remove last part of the path
 		char * pch;
 		pch=strrchr(port->usb_path,'.');
-		port->usb_path[pch-port->usb_path] = '\0';
+		if (pch != NULL) {
+			port->usb_path[pch-port->usb_path] = '\0';
+		}
 	}
 
 	if ((root_hub_name = get_root_hub_name(host_controller_device))) {
