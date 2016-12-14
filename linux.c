@@ -31,7 +31,7 @@ SP_PRIV enum sp_return get_port_details(struct sp_port *port)
 	char description[128];
 	int bus, address;
 	unsigned int vid, pid;
-	char manufacturer[128], product[128], serial[128];
+	char manufacturer[128], product[128], serial[128], interface[128];
 	char baddr[32];
 	const char dir_name[] = "/sys/class/tty/%s/device/%s%s";
 	char sub_dir[32] = "", file_name[PATH_MAX];
@@ -39,6 +39,8 @@ SP_PRIV enum sp_return get_port_details(struct sp_port *port)
 	FILE *file;
 	int i, count;
 	struct stat statbuf;
+
+	interface[0] = '\0';
 
 	if (strncmp(port->name, "/dev/", 5))
 		RETURN_ERROR(SP_ERR_ARG, "Device name not recognized");
@@ -59,6 +61,18 @@ SP_PRIV enum sp_return get_port_details(struct sp_port *port)
 
 	if (port->transport == SP_TRANSPORT_USB) {
 		for (i = 0; i < 5; i++) {
+
+			snprintf(file_name, sizeof(file_name), dir_name, dev, sub_dir, "interface");
+			if ((file = fopen(file_name, "r"))) {
+				if ((ptr = fgets(interface, sizeof(interface), file))) {
+					ptr = interface + strlen(interface) - 1;
+					if (ptr >= interface && *ptr == '\n')
+						*ptr = 0;
+					port->description = strdup(interface);
+				}
+				fclose(file);
+			}
+
 			strcat(sub_dir, "../");
 
 			snprintf(file_name, sizeof(file_name), dir_name, dev, sub_dir, "busnum");
@@ -145,9 +159,9 @@ SP_PRIV enum sp_return get_port_details(struct sp_port *port)
 			}
 
 			/* If present, add serial to description for better identification. */
-			if (port->usb_serial && strlen(port->usb_serial)) {
+			if (strlen(interface) > 0) {
 				snprintf(description, sizeof(description),
-					"%s - %s", port->description, port->usb_serial);
+					"%s - %s", port->description, interface);
 				if (port->description)
 					free(port->description);
 				port->description = strdup(description);
