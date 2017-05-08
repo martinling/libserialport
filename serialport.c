@@ -865,18 +865,20 @@ SP_API enum sp_return sp_nonblocking_write(struct sp_port *port,
 		RETURN_INT(0);
 
 #ifdef _WIN32
-	DWORD written = 0;
-	BYTE *ptr = (BYTE *) buf;
+	DWORD bytes_written = 0;
 
 	/* Check whether previous write is complete. */
 	if (port->writing) {
-		if (HasOverlappedIoCompleted(&port->write_ovl)) {
+		if (GetOverlappedResult(port->hdl, &port->write_ovl, &bytes_written, FALSE) == 0) {
+			if (GetLastError() == ERROR_IO_INCOMPLETE) {
+				DEBUG("Previous write incomplete");
+				/* Can't take a new write until the previous one finishes. */
+				RETURN_INT(0);
+			} else
+				RETURN_FAIL("GetOverlappedResult() failed");
+		} else {
 			DEBUG("Previous write completed");
 			port->writing = 0;
-		} else {
-			DEBUG("Previous write not complete");
-			/* Can't take a new write until the previous one finishes. */
-			RETURN_INT(0);
 		}
 	}
 
@@ -887,48 +889,41 @@ SP_API enum sp_return sp_nonblocking_write(struct sp_port *port,
 			RETURN_FAIL("SetCommTimeouts() failed");
 	}
 
-	/*
-	 * Keep writing data until the OS has to actually start an async IO
-	 * for it. At that point we know the buffer is full.
-	 */
-	while (written < count) {
-		/* Copy first byte of user buffer. */
-		port->pending_byte = *ptr++;
+	/* Do write. */
+	if (WriteFile(port->hdl, buf, count, NULL, &port->write_ovl) == 0)
+		if (GetLastError() != ERROR_IO_PENDING)
+			RETURN_FAIL("WriteFile() failed");
 
-		/* Start asynchronous write. */
-		if (WriteFile(port->hdl, &port->pending_byte, 1, NULL, &port->write_ovl) == 0) {
-			if (GetLastError() == ERROR_IO_PENDING) {
-				if (HasOverlappedIoCompleted(&port->write_ovl)) {
-					DEBUG("Asynchronous write completed immediately");
-					port->writing = 0;
-					written++;
-					continue;
-				} else {
-					DEBUG("Asynchronous write running");
-					port->writing = 1;
-					RETURN_INT(++written);
-				}
-			} else {
-				/* Actual failure of some kind. */
-				RETURN_FAIL("WriteFile() failed");
-			}
-		} else {
-			DEBUG("Single byte written immediately");
-			written++;
+	/* Get number of bytes written. */
+	if (GetOverlappedResult(port->hdl, &port->write_ovl, &bytes_written, FALSE) == 0) {
+		if (GetLastError() == ERROR_IO_INCOMPLETE) {
+			DEBUG("Asynchronous write running");
+			port->writing = 1;
 		}
+		else /* GetLastError() != ERROR_IO_INCOMPLETE */
+			RETURN_FAIL("GetOverlappedResult() failed");
+	}
+	else {
+		DEBUG("Asynchronous write completed immediately");
+		port->writing = 0;
 	}
 
-	DEBUG("All bytes written immediately");
+	DEBUG_FMT("%d bytes written immediately", bytes_written);
 
-	RETURN_INT(written);
+	RETURN_INT(bytes_written);
 #else
-	/* Returns the number of bytes written, or -1 upon failure. */
-	ssize_t written = write(port->fd, buf, count);
+	ssize_t bytes_written;
 
-	if (written < 0)
-		RETURN_FAIL("write() failed");
-	else
-		RETURN_INT(written);
+	/* Returns the number of bytes written, or -1 upon failure. */
+	if ((bytes_written = write(port->fd, buf, count)) < 0) {
+		if (errno == EAGAIN)
+			/* No bytes written. */
+			bytes_written = 0;
+		else
+			/* This is an actual failure. */
+			RETURN_FAIL("write() failed");
+	}
+	RETURN_INT(bytes_written);
 #endif
 }
 
