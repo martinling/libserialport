@@ -107,8 +107,6 @@ struct sp_port {
 	OVERLAPPED read_ovl;
 	OVERLAPPED wait_ovl;
 	DWORD events;
-	BYTE pending_byte;
-	BOOL writing;
 	BOOL wait_running;
 #else
 	int fd;
