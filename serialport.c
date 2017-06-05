@@ -477,7 +477,7 @@ SP_API enum sp_return sp_open(struct sp_port *port, enum sp_mode flags)
 	sprintf(escaped_port_name, "\\\\.\\%s", port->name);
 
 	/* Map 'flags' to the OS-specific settings. */
-	flags_and_attributes = FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED;
+	flags_and_attributes = FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED | FILE_FLAG_NO_BUFFERING | FILE_FLAG_WRITE_THROUGH;
 	if (flags & SP_MODE_READ)
 		desired_access |= GENERIC_READ;
 	if (flags & SP_MODE_WRITE)
@@ -524,7 +524,6 @@ SP_API enum sp_return sp_open(struct sp_port *port, enum sp_mode flags)
 		RETURN_FAIL("SetCommMask() failed");
 	}
 
-	port->writing = FALSE;
 	port->wait_running = FALSE;
 
 	ret = restart_wait(port);
@@ -751,44 +750,44 @@ SP_API enum sp_return sp_blocking_write(struct sp_port *port, const void *buf,
 
 #ifdef _WIN32
 	DWORD bytes_written = 0;
-	BOOL result;
 
-	/* Wait for previous non-blocking write to complete, if any. */
-	if (port->writing) {
-		DEBUG("Waiting for previous write to complete");
-		result = GetOverlappedResult(port->hdl, &port->write_ovl, &bytes_written, TRUE);
-		port->writing = 0;
-		if (!result)
-			RETURN_FAIL("Previous write failed to complete");
+	/* Check whether previous write is complete. */
+	if (GetOverlappedResult(port->hdl, &port->write_ovl, &bytes_written, FALSE) == 0) {
+		if (GetLastError() != ERROR_IO_INCOMPLETE)
+			RETURN_FAIL("GetOverlappedResult() failed");
+		else {
+			DEBUG("Previous write incomplete");
+			/* Can't take a new write until the previous one finishes. */
+			RETURN_INT(0);
+		}
+	} else
 		DEBUG("Previous write completed");
-	}
 
 	/* Set timeout. */
-	if (port->timeouts.WriteTotalTimeoutConstant != timeout_ms) {
+	if (port->timeouts.WriteTotalTimeoutMultiplier != 0 ||
+			port->timeouts.WriteTotalTimeoutConstant != timeout_ms) {
+		port->timeouts.WriteTotalTimeoutMultiplier = 0;
 		port->timeouts.WriteTotalTimeoutConstant = timeout_ms;
 		if (SetCommTimeouts(port->hdl, &port->timeouts) == 0)
 			RETURN_FAIL("SetCommTimeouts() failed");
 	}
 
 	/* Start write. */
-	if (WriteFile(port->hdl, buf, count, NULL, &port->write_ovl)) {
-		DEBUG("Write completed immediately");
-		RETURN_INT(count);
-	} else if (GetLastError() == ERROR_IO_PENDING) {
-		DEBUG("Waiting for write to complete");
-		if (GetOverlappedResult(port->hdl, &port->write_ovl, &bytes_written, TRUE) == 0) {
-			if (GetLastError() == ERROR_SEM_TIMEOUT) {
-				DEBUG("Write timed out");
-				RETURN_INT(0);
-			} else {
-				RETURN_FAIL("GetOverlappedResult() failed");
-			}
-		}
-		DEBUG_FMT("Write completed, %d/%d bytes written", bytes_written, count);
-		RETURN_INT(bytes_written);
-	} else {
-		RETURN_FAIL("WriteFile() failed");
-	}
+	if (WriteFile(port->hdl, buf, count, NULL, &port->write_ovl) == 0)
+		if (GetLastError() != ERROR_IO_PENDING)
+			RETURN_FAIL("WriteFile() failed");
+
+	DEBUG("Waiting for write to complete");
+	if (GetOverlappedResult(port->hdl, &port->write_ovl, &bytes_written, TRUE) == 0)
+		RETURN_FAIL("GetOverlappedResult() failed");
+
+	if (port->write_ovl.Internal == WAIT_TIMEOUT)
+		DEBUG("Write timed out");
+
+	DEBUG_FMT("Write completed, %d/%d bytes written", bytes_written, count);
+
+	RETURN_INT(bytes_written);
+
 #else
 	size_t bytes_written = 0;
 	unsigned char *ptr = (unsigned char *) buf;
@@ -880,23 +879,22 @@ SP_API enum sp_return sp_nonblocking_write(struct sp_port *port,
 	DWORD bytes_written = 0;
 
 	/* Check whether previous write is complete. */
-	if (port->writing) {
-		if (GetOverlappedResult(port->hdl, &port->write_ovl, &bytes_written, FALSE) == 0) {
-			if (GetLastError() == ERROR_IO_INCOMPLETE) {
-				DEBUG("Previous write incomplete");
-				/* Can't take a new write until the previous one finishes. */
-				RETURN_INT(0);
-			} else
-				RETURN_FAIL("GetOverlappedResult() failed");
-		} else {
-			DEBUG("Previous write completed");
-			port->writing = 0;
+	if (GetOverlappedResult(port->hdl, &port->write_ovl, &bytes_written, FALSE) == 0) {
+		if (GetLastError() != ERROR_IO_INCOMPLETE)
+			RETURN_FAIL("GetOverlappedResult() failed");
+		else {
+			DEBUG("Previous write incomplete");
+			/* Can't take a new write until the previous one finishes. */
+			RETURN_INT(0);
 		}
-	}
+	} else
+		DEBUG("Previous write completed");
 
 	/* Set timeout. */
-	if (port->timeouts.WriteTotalTimeoutConstant != 0) {
-		port->timeouts.WriteTotalTimeoutConstant = 0;
+	if (port->timeouts.WriteTotalTimeoutMultiplier != 0 ||
+			port->timeouts.WriteTotalTimeoutConstant != 1) {
+		port->timeouts.WriteTotalTimeoutMultiplier = 0;
+		port->timeouts.WriteTotalTimeoutConstant = 1;
 		if (SetCommTimeouts(port->hdl, &port->timeouts) == 0)
 			RETURN_FAIL("SetCommTimeouts() failed");
 	}
@@ -906,23 +904,17 @@ SP_API enum sp_return sp_nonblocking_write(struct sp_port *port,
 		if (GetLastError() != ERROR_IO_PENDING)
 			RETURN_FAIL("WriteFile() failed");
 
-	/* Get number of bytes written. */
-	if (GetOverlappedResult(port->hdl, &port->write_ovl, &bytes_written, FALSE) == 0) {
-		if (GetLastError() == ERROR_IO_INCOMPLETE) {
-			DEBUG("Asynchronous write running");
-			port->writing = 1;
-		}
-		else /* GetLastError() != ERROR_IO_INCOMPLETE */
-			RETURN_FAIL("GetOverlappedResult() failed");
-	}
-	else {
-		DEBUG("Asynchronous write completed immediately");
-		port->writing = 0;
-	}
+	DEBUG("Waiting for write to complete");
+	if (GetOverlappedResult(port->hdl, &port->write_ovl, &bytes_written, TRUE) == 0)
+		RETURN_FAIL("GetOverlappedResult() failed");
 
-	DEBUG_FMT("%d bytes written immediately", bytes_written);
+	if (port->write_ovl.Internal == WAIT_TIMEOUT)
+		DEBUG("Write timed out");
+
+	DEBUG_FMT("Write completed immediately, %d/%d bytes written", bytes_written, count);
 
 	RETURN_INT(bytes_written);
+
 #else
 	ssize_t bytes_written;
 
@@ -994,17 +986,18 @@ SP_API enum sp_return sp_blocking_read(struct sp_port *port, void *buf,
 	}
 
 	/* Start read. */
-	if (ReadFile(port->hdl, buf, count, NULL, &port->read_ovl)) {
-		DEBUG("Read completed immediately");
-		bytes_read = count;
-	} else if (GetLastError() == ERROR_IO_PENDING) {
-		DEBUG("Waiting for read to complete");
-		if (GetOverlappedResult(port->hdl, &port->read_ovl, &bytes_read, TRUE) == 0)
-			RETURN_FAIL("GetOverlappedResult() failed");
-		DEBUG_FMT("Read completed, %d/%d bytes read", bytes_read, count);
-	} else {
-		RETURN_FAIL("ReadFile() failed");
-	}
+	if (ReadFile(port->hdl, buf, count, NULL, &port->read_ovl) == 0)
+		if (GetLastError() != ERROR_IO_PENDING)
+			RETURN_FAIL("ReadFile() failed");
+
+	DEBUG("Waiting for read to complete");
+	if (GetOverlappedResult(port->hdl, &port->read_ovl, &bytes_read, TRUE) == 0)
+		RETURN_FAIL("GetOverlappedResult() failed");
+
+	if (port->read_ovl.Internal == WAIT_TIMEOUT)
+		DEBUG("Read timed out");
+
+	DEBUG_FMT("Read completed, %d/%d bytes read", bytes_read, count);
 
 	TRY(restart_wait_if_needed(port, bytes_read));
 
@@ -1122,27 +1115,19 @@ SP_API enum sp_return sp_blocking_read_next(struct sp_port *port, void *buf,
 			RETURN_FAIL("SetCommTimeouts() failed");
 	}
 
-	/* Loop until we have at least one byte, or timeout is reached. */
-	while (bytes_read == 0) {
-		/* Start read. */
-		if (ReadFile(port->hdl, buf, count, &bytes_read, &port->read_ovl)) {
-			DEBUG("Read completed immediately");
-		} else if (GetLastError() == ERROR_IO_PENDING) {
-			DEBUG("Waiting for read to complete");
-			if (GetOverlappedResult(port->hdl, &port->read_ovl, &bytes_read, TRUE) == 0)
-				RETURN_FAIL("GetOverlappedResult() failed");
-			if (bytes_read > 0) {
-				DEBUG("Read completed");
-			} else if (timeout_ms > 0) {
-				DEBUG("Read timed out");
-				break;
-			} else {
-				DEBUG("Restarting read");
-			}
-		} else {
+	/* Start read. */
+	if (ReadFile(port->hdl, buf, count, NULL, &port->read_ovl) == 0)
+		if (GetLastError() != ERROR_IO_PENDING)
 			RETURN_FAIL("ReadFile() failed");
-		}
-	}
+
+	DEBUG("Waiting for read to complete");
+	if (GetOverlappedResult(port->hdl, &port->read_ovl, &bytes_read, TRUE) == 0)
+		RETURN_FAIL("GetOverlappedResult() failed");
+
+	if (port->read_ovl.Internal == WAIT_TIMEOUT)
+		DEBUG("Read timed out");
+
+	DEBUG_FMT("Read completed, %d/%d bytes read", bytes_read, count);
 
 	TRY(restart_wait_if_needed(port, bytes_read));
 
@@ -1235,11 +1220,11 @@ SP_API enum sp_return sp_nonblocking_read(struct sp_port *port, void *buf,
 
 	/* Set timeout. */
 	if (port->timeouts.ReadIntervalTimeout != MAXDWORD ||
-			port->timeouts.ReadTotalTimeoutMultiplier != 0 ||
-			port->timeouts.ReadTotalTimeoutConstant != 0) {
+			port->timeouts.ReadTotalTimeoutMultiplier != MAXDWORD ||
+			port->timeouts.ReadTotalTimeoutConstant != 1) {
 		port->timeouts.ReadIntervalTimeout = MAXDWORD;
-		port->timeouts.ReadTotalTimeoutMultiplier = 0;
-		port->timeouts.ReadTotalTimeoutConstant = 0;
+		port->timeouts.ReadTotalTimeoutMultiplier = MAXDWORD;
+		port->timeouts.ReadTotalTimeoutConstant = 1;
 		if (SetCommTimeouts(port->hdl, &port->timeouts) == 0)
 			RETURN_FAIL("SetCommTimeouts() failed");
 	}
@@ -1249,13 +1234,19 @@ SP_API enum sp_return sp_nonblocking_read(struct sp_port *port, void *buf,
 		if (GetLastError() != ERROR_IO_PENDING)
 			RETURN_FAIL("ReadFile() failed");
 
-	/* Get number of bytes read. */
-	if (GetOverlappedResult(port->hdl, &port->read_ovl, &bytes_read, FALSE) == 0)
+	DEBUG("Waiting for read to complete");
+	if (GetOverlappedResult(port->hdl, &port->read_ovl, &bytes_read, TRUE) == 0)
 		RETURN_FAIL("GetOverlappedResult() failed");
+
+	if (port->read_ovl.Internal == WAIT_TIMEOUT)
+		DEBUG("Read timed out");
+
+	DEBUG_FMT("Read completed immediately, %d/%d bytes read", bytes_read, count);
 
 	TRY(restart_wait_if_needed(port, bytes_read));
 
 	RETURN_INT(bytes_read);
+
 #else
 	ssize_t bytes_read;
 
