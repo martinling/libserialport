@@ -56,7 +56,7 @@ SP_PRIV enum sp_return get_port_details(struct sp_port *port)
 		result = CFStringGetCString(cf_property, path, sizeof(path),
 		                            kCFStringEncodingASCII);
 		CFRelease(cf_property);
-		if (!result || strcmp(path, port->name)) {
+		if (!result || strcmp(path, port->name) || strstr(path, "wwan")) {
 			IOObjectRelease(ioport);
 			continue;
 		}
