@@ -19,6 +19,11 @@
  */
 
 #include <config.h>
+
+#ifdef HAVE_STRUCT_SERIAL_STRUCT
+# include <linux/serial.h>
+#endif
+
 #include "libserialport.h"
 #include "libserialport_internal.h"
 
