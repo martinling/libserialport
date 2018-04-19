@@ -16,3 +16,9 @@
 /libserialport.pc
 /libtool
 stamp-h?
+
+# CMake build folder
+build
+
+# Vim temp files
+*.swp
