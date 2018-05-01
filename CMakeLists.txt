@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 # Disable in-source builds to prevent source tree corruption.
 if(" ${CMAKE_SOURCE_DIR}" STREQUAL " ${CMAKE_BINARY_DIR}")
 	message(FATAL_ERROR "FATAL: In-source builds are not allowed.
-       You should create a separate directory for build files.")
+	You should create a separate directory for build files.")
 endif()
 
 # Set variables
@@ -37,12 +37,8 @@ endif()
 project(${PROJECT_NAME} ${PROJECT_LANGUAGE})
 
 # Export configuration files
-include(${CMAKE_ROOT}/Modules/CheckIncludeFile.cmake)
-include(${CMAKE_ROOT}/Modules/CheckTypeSize.cmake)
-include(${CMAKE_ROOT}/Modules/CheckFunctionExists.cmake)
-include(${CMAKE_ROOT}/Modules/CheckCXXSourceCompiles.cmake)
-include(${CMAKE_ROOT}/Modules/TestBigEndian.cmake)
-include(${CMAKE_ROOT}/Modules/CheckSymbolExists.cmake)
+include(CheckIncludeFile)
+include(CheckCSourceCompiles)
 
 CHECK_INCLUDE_FILE("dlfcn.h" HAVE_DLFCN_H)
 CHECK_INCLUDE_FILE("inttypes.h" HAVE_INTTYPES_H)
@@ -54,6 +50,14 @@ CHECK_INCLUDE_FILE("string.h" HAVE_STRING_H)
 CHECK_INCLUDE_FILE("sys/stat.h" HAVE_SYS_STAT_H)
 CHECK_INCLUDE_FILE("sys/types.h" HAVE_SYS_TYPES_H)
 CHECK_INCLUDE_FILE("unistd.h" HAVE_UNISTD_H)
+
+CHECK_C_SOURCE_COMPILES(
+	"#include <linux/termios.h>
+	int main(void) { struct termios2 tmp; return 0; }"
+	HAVE_STRUCT_TERMIOS2)
+
+#CHECK_SYMBOL_EXISTS("struct termiox" "linux/termios.h" HAVE_STRUCT_TERMIOX)
+#CHECK_SYMBOL_EXISTS("struct serial_struct" "linux/serial.h" HAVE_STRUCT_SERIAL_STRUCT)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake
 	${CMAKE_CURRENT_BINARY_DIR}/config.h)
