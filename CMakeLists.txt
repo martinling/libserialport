@@ -37,8 +37,11 @@ endif()
 project(${PROJECT_NAME} ${PROJECT_LANGUAGE})
 
 # Export configuration files
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
 include(CheckIncludeFile)
 include(CheckCSourceCompiles)
+include(CheckMacro)
 
 CHECK_INCLUDE_FILE("dlfcn.h" HAVE_DLFCN_H)
 CHECK_INCLUDE_FILE("inttypes.h" HAVE_INTTYPES_H)
@@ -51,13 +54,9 @@ CHECK_INCLUDE_FILE("sys/stat.h" HAVE_SYS_STAT_H)
 CHECK_INCLUDE_FILE("sys/types.h" HAVE_SYS_TYPES_H)
 CHECK_INCLUDE_FILE("unistd.h" HAVE_UNISTD_H)
 
-CHECK_C_SOURCE_COMPILES(
-	"#include <linux/termios.h>
-	int main(void) { struct termios2 tmp; return 0; }"
-	HAVE_STRUCT_TERMIOS2)
-
-#CHECK_SYMBOL_EXISTS("struct termiox" "linux/termios.h" HAVE_STRUCT_TERMIOX)
-#CHECK_SYMBOL_EXISTS("struct serial_struct" "linux/serial.h" HAVE_STRUCT_SERIAL_STRUCT)
+CHECK_TYPE("struct termios2" "<linux/termios.h>" HAVE_STRUCT_TERMIOS2)
+CHECK_TYPE("struct termiox" "<linux/termios.h>" HAVE_STRUCT_TERMIOX)
+CHECK_TYPE("struct serial_struct" "<linux/serial.h>" HAVE_STRUCT_SERIAL_STRUCT)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake
 	${CMAKE_CURRENT_BINARY_DIR}/config.h)
