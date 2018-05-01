@@ -9,6 +9,7 @@
 /autom4te.cache/
 /autostuff/
 /config.*
+!/config.h.cmake
 /configure
 /configure.lineno
 /libserialport-*.tar.*
