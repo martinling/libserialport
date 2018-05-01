@@ -35,3 +35,25 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 project(${PROJECT_NAME} ${PROJECT_LANGUAGE})
+
+# Export configuration files
+include(${CMAKE_ROOT}/Modules/CheckIncludeFile.cmake)
+include(${CMAKE_ROOT}/Modules/CheckTypeSize.cmake)
+include(${CMAKE_ROOT}/Modules/CheckFunctionExists.cmake)
+include(${CMAKE_ROOT}/Modules/CheckCXXSourceCompiles.cmake)
+include(${CMAKE_ROOT}/Modules/TestBigEndian.cmake)
+include(${CMAKE_ROOT}/Modules/CheckSymbolExists.cmake)
+
+CHECK_INCLUDE_FILE("dlfcn.h" HAVE_DLFCN_H)
+CHECK_INCLUDE_FILE("inttypes.h" HAVE_INTTYPES_H)
+CHECK_INCLUDE_FILE("memory.h" HAVE_MEMORY_H)
+CHECK_INCLUDE_FILE("stdint.h" HAVE_STDINT_H)
+CHECK_INCLUDE_FILE("stdlib.h" HAVE_STDLIB_H)
+CHECK_INCLUDE_FILE("strings.h" HAVE_STRINGS_H)
+CHECK_INCLUDE_FILE("string.h" HAVE_STRING_H)
+CHECK_INCLUDE_FILE("sys/stat.h" HAVE_SYS_STAT_H)
+CHECK_INCLUDE_FILE("sys/types.h" HAVE_SYS_TYPES_H)
+CHECK_INCLUDE_FILE("unistd.h" HAVE_UNISTD_H)
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake
+	${CMAKE_CURRENT_BINARY_DIR}/config.h)

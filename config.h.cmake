@@ -1,62 +1,63 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
+/* config.h.cmake. Modify from config.h.in. */
 
 /* Define to 1 if you have the declaration of `BOTHER', and to 0 if you don't.
    */
-#undef HAVE_DECL_BOTHER
+#cmakedefine01 HAVE_DECL_BOTHER
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
-#undef HAVE_DLFCN_H
+#cmakedefine01 HAVE_DLFCN_H
 
 /* Define to 1 if you have the <inttypes.h> header file. */
-#undef HAVE_INTTYPES_H
+#cmakedefine01 HAVE_INTTYPES_H
 
 /* Define to 1 if you have the <memory.h> header file. */
-#undef HAVE_MEMORY_H
+#cmakedefine01 HAVE_MEMORY_H
 
 /* realpath is available. */
 #undef HAVE_REALPATH
 
 /* Define to 1 if you have the <stdint.h> header file. */
-#undef HAVE_STDINT_H
+#cmakedefine01 HAVE_STDINT_H
 
 /* Define to 1 if you have the <stdlib.h> header file. */
-#undef HAVE_STDLIB_H
+#cmakedefine01 HAVE_STDLIB_H
 
 /* Define to 1 if you have the <strings.h> header file. */
-#undef HAVE_STRINGS_H
+#cmakedefine01 HAVE_STRINGS_H
 
 /* Define to 1 if you have the <string.h> header file. */
-#undef HAVE_STRING_H
+#cmakedefine01 HAVE_STRING_H
 
 /* Define to 1 if the system has the type `struct serial_struct'. */
-#undef HAVE_STRUCT_SERIAL_STRUCT
+#cmakedefine01 HAVE_STRUCT_SERIAL_STRUCT
 
 /* Define to 1 if the system has the type `struct termios2'. */
-#undef HAVE_STRUCT_TERMIOS2
+#cmakedefine01 HAVE_STRUCT_TERMIOS2
 
 /* Define to 1 if `c_ispeed' is a member of `struct termios2'. */
-#undef HAVE_STRUCT_TERMIOS2_C_ISPEED
+#cmakedefine01 HAVE_STRUCT_TERMIOS2_C_ISPEED
 
 /* Define to 1 if `c_ospeed' is a member of `struct termios2'. */
-#undef HAVE_STRUCT_TERMIOS2_C_OSPEED
+#cmakedefine01 HAVE_STRUCT_TERMIOS2_C_OSPEED
 
 /* Define to 1 if `c_ispeed' is a member of `struct termios'. */
-#undef HAVE_STRUCT_TERMIOS_C_ISPEED
+#cmakedefine01 HAVE_STRUCT_TERMIOS_C_ISPEED
 
 /* Define to 1 if `c_ospeed' is a member of `struct termios'. */
-#undef HAVE_STRUCT_TERMIOS_C_OSPEED
+#cmakedefine01 HAVE_STRUCT_TERMIOS_C_OSPEED
 
 /* Define to 1 if the system has the type `struct termiox'. */
-#undef HAVE_STRUCT_TERMIOX
+#cmakedefine01 HAVE_STRUCT_TERMIOX
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
-#undef HAVE_SYS_STAT_H
+#cmakedefine01 HAVE_SYS_STAT_H
 
 /* Define to 1 if you have the <sys/types.h> header file. */
-#undef HAVE_SYS_TYPES_H
+#cmakedefine01 HAVE_SYS_TYPES_H
 
 /* Define to 1 if you have the <unistd.h> header file. */
-#undef HAVE_UNISTD_H
+#cmakedefine01 HAVE_UNISTD_H
 
 /* Define to the sub-directory where libtool stores uninstalled libraries. */
 #undef LT_OBJDIR
@@ -116,7 +117,7 @@
 #undef SP_PRIV
 
 /* Define to 1 if you have the ANSI C header files. */
-#undef STDC_HEADERS
+#cmakedefine01 STDC_HEADERS
 
 /* Enable large inode numbers on Mac OS X 10.5.  */
 #ifndef _DARWIN_USE_64_BIT_INODE
