@@ -58,5 +58,10 @@ CHECK_TYPE("struct termios2" "<linux/termios.h>" HAVE_STRUCT_TERMIOS2)
 CHECK_TYPE("struct termiox" "<linux/termios.h>" HAVE_STRUCT_TERMIOX)
 CHECK_TYPE("struct serial_struct" "<linux/serial.h>" HAVE_STRUCT_SERIAL_STRUCT)
 
+CHECK_MEMBER("struct termios2" "c_ispeed" "<linux/termios.h>" HAVE_STRUCT_TERMIOS2_C_ISPEED)
+CHECK_MEMBER("struct termios2" "c_ospeed" "<linux/termios.h>" HAVE_STRUCT_TERMIOS2_C_OSPEED)
+CHECK_MEMBER("struct termios" "c_ispeed" "<linux/termios.h>" HAVE_STRUCT_TERMIOS_C_ISPEED)
+CHECK_MEMBER("struct termios" "c_ospeed" "<linux/termios.h>" HAVE_STRUCT_TERMIOS_C_OSPEED)
+
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake
 	${CMAKE_CURRENT_BINARY_DIR}/config.h)
