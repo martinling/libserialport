@@ -60,31 +60,31 @@
 #cmakedefine HAVE_UNISTD_H @HAVE_UNISTD_H@
 
 /* Define to the sub-directory where libtool stores uninstalled libraries. */
-#undef LT_OBJDIR
+#cmakedefine LT_OBJDIR
 
 /* Enumeration is unsupported. */
-#undef NO_ENUMERATION
+#cmakedefine NO_ENUMERATION @NO_ENUMERATION@
 
 /* Port metadata is unavailable. */
-#undef NO_PORT_METADATA
+#cmakedefine NO_PORT_METADATA @NO_PORT_METADATA@
 
 /* Define to the address where bug reports for this package should be sent. */
-#undef PACKAGE_BUGREPORT
+#define PACKAGE_BUGREPORT @PACKAGE_BUGREPORT@
 
 /* Define to the full name of this package. */
-#undef PACKAGE_NAME
+#define PACKAGE_NAME @PACKAGE_NAME@
 
 /* Define to the full name and version of this package. */
-#undef PACKAGE_STRING
+#define PACKAGE_STRING @PACKAGE_STRING@
 
 /* Define to the one symbol short name of this package. */
-#undef PACKAGE_TARNAME
+#define PACKAGE_TARNAME @PACKAGE_TARNAME@
 
 /* Define to the home page for this package. */
-#undef PACKAGE_URL
+#define PACKAGE_URL @PACKAGE_URL@
 
 /* Define to the version of this package. */
-#undef PACKAGE_VERSION
+#define PACKAGE_VERSION @PACKAGE_VERSION@
 
 /* Macro preceding public API functions */
 #undef SP_API

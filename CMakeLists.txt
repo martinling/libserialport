@@ -22,6 +22,13 @@ set(SP_LIB_VERSION_AGE 1)
 set(SP_LIB_VERSION_STRING
 	"\"${SP_LIB_VERSION_CURRENT}:${SP_LIB_VERSION_REVISION}:${SP_LIB_VERSION_AGE}\"")
 
+set(PACKAGE_NAME "\"libserialport\"")
+set(PACKAGE_VERSION ${SP_PACKAGE_VERSION_STRING})
+set(PACKAGE_BUGREPORT "\"martin-libserialport@earth.li\"")
+set(PACKAGE_TARNAME "\"libserialport\"")
+set(PACKAGE_URL "\"http://sigrok.org/wiki/Libserialport\"")
+set(PACKAGE_STRING "\"libserialport ${SP_PACKAGE_VERSION_MAJOR}.${SP_PACKAGE_VERSION_MINOR}.${SP_PACKAGE_VERSION_MICRO}\"")
+
 # Environment variables
 set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install" CACHE PATH "Installation directory")
 set(BUILD_TEST OFF CACHE BOOL "Enable building test")
