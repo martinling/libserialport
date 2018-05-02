@@ -11,3 +11,14 @@ macro(CHECK_MEMBER TYPE MEMBER INCLUDE_PATH VAR)
 		int main(void) { ((${TYPE}*)0)->${MEMBER}; return 0; }"
 		${VAR})
 endmacro()
+
+macro(CHECK_DECL DEF INCLUDE_PATH VAR)
+	CHECK_C_SOURCE_COMPILES(
+		"#include ${INCLUDE_PATH}
+		int main(void) {
+		#ifndef ${DEF}
+		#error Symbol undefined
+		#endif
+		return 0; }"
+		${VAR})
+endmacro()

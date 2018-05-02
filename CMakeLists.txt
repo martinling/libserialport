@@ -41,6 +41,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 include(CheckIncludeFile)
 include(CheckCSourceCompiles)
+include(CheckFunctionExists)
 include(CheckMacro)
 
 CHECK_INCLUDE_FILE("dlfcn.h" HAVE_DLFCN_H)
@@ -62,6 +63,10 @@ CHECK_MEMBER("struct termios2" "c_ispeed" "<linux/termios.h>" HAVE_STRUCT_TERMIO
 CHECK_MEMBER("struct termios2" "c_ospeed" "<linux/termios.h>" HAVE_STRUCT_TERMIOS2_C_OSPEED)
 CHECK_MEMBER("struct termios" "c_ispeed" "<linux/termios.h>" HAVE_STRUCT_TERMIOS_C_ISPEED)
 CHECK_MEMBER("struct termios" "c_ospeed" "<linux/termios.h>" HAVE_STRUCT_TERMIOS_C_OSPEED)
+
+CHECK_DECL("BOTHER" "<linux/termios.h>" HAVE_DECL_BOTHER)
+
+CHECK_FUNCTION_EXISTS("realpath" HAVE_REALPATH)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake
 	${CMAKE_CURRENT_BINARY_DIR}/config.h)

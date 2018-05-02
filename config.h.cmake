@@ -15,7 +15,7 @@
 #cmakedefine HAVE_MEMORY_H @HAVE_MEMORY_H@
 
 /* realpath is available. */
-#undef HAVE_REALPATH
+#cmakedefine HAVE_REALPATH @HAVE_REALPATH@
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #cmakedefine HAVE_STDINT_H @HAVE_STDINT_H@
