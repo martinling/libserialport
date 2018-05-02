@@ -3,61 +3,61 @@
 
 /* Define to 1 if you have the declaration of `BOTHER', and to 0 if you don't.
    */
-#cmakedefine01 HAVE_DECL_BOTHER
+#cmakedefine HAVE_DECL_BOTHER @HAVE_DECL_BOTHER@
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
-#cmakedefine01 HAVE_DLFCN_H
+#cmakedefine HAVE_DLFCN_H @HAVE_DLFCN_H@
 
 /* Define to 1 if you have the <inttypes.h> header file. */
-#cmakedefine01 HAVE_INTTYPES_H
+#cmakedefine HAVE_INTTYPES_H @HAVE_INTTYPES_H@
 
 /* Define to 1 if you have the <memory.h> header file. */
-#cmakedefine01 HAVE_MEMORY_H
+#cmakedefine HAVE_MEMORY_H @HAVE_MEMORY_H@
 
 /* realpath is available. */
 #undef HAVE_REALPATH
 
 /* Define to 1 if you have the <stdint.h> header file. */
-#cmakedefine01 HAVE_STDINT_H
+#cmakedefine HAVE_STDINT_H @HAVE_STDINT_H@
 
 /* Define to 1 if you have the <stdlib.h> header file. */
-#cmakedefine01 HAVE_STDLIB_H
+#cmakedefine HAVE_STDLIB_H @HAVE_STDLIB_H@
 
 /* Define to 1 if you have the <strings.h> header file. */
-#cmakedefine01 HAVE_STRINGS_H
+#cmakedefine HAVE_STRINGS_H @HAVE_STRINGS_H@
 
 /* Define to 1 if you have the <string.h> header file. */
-#cmakedefine01 HAVE_STRING_H
+#cmakedefine HAVE_STRING_H @HAVE_STRING_H@
 
 /* Define to 1 if the system has the type `struct serial_struct'. */
-#cmakedefine01 HAVE_STRUCT_SERIAL_STRUCT
+#cmakedefine HAVE_STRUCT_SERIAL_STRUCT @HAVE_STRUCT_SERIAL_STRUCT@
 
 /* Define to 1 if the system has the type `struct termios2'. */
-#cmakedefine01 HAVE_STRUCT_TERMIOS2
+#cmakedefine HAVE_STRUCT_TERMIOS2 @HAVE_STRUCT_TERMIOS2@
 
 /* Define to 1 if `c_ispeed' is a member of `struct termios2'. */
-#cmakedefine01 HAVE_STRUCT_TERMIOS2_C_ISPEED
+#cmakedefine HAVE_STRUCT_TERMIOS2_C_ISPEED @HAVE_STRUCT_TERMIOS2_C_ISPEED@
 
 /* Define to 1 if `c_ospeed' is a member of `struct termios2'. */
-#cmakedefine01 HAVE_STRUCT_TERMIOS2_C_OSPEED
+#cmakedefine HAVE_STRUCT_TERMIOS2_C_OSPEED @HAVE_STRUCT_TERMIOS2_C_OSPEED@
 
 /* Define to 1 if `c_ispeed' is a member of `struct termios'. */
-#cmakedefine01 HAVE_STRUCT_TERMIOS_C_ISPEED
+#cmakedefine HAVE_STRUCT_TERMIOS_C_ISPEED @HAVE_STRUCT_TERMIOS_C_ISPEED@
 
 /* Define to 1 if `c_ospeed' is a member of `struct termios'. */
-#cmakedefine01 HAVE_STRUCT_TERMIOS_C_OSPEED
+#cmakedefine HAVE_STRUCT_TERMIOS_C_OSPEED @HAVE_STRUCT_TERMIOS_C_OSPEED@
 
 /* Define to 1 if the system has the type `struct termiox'. */
-#cmakedefine01 HAVE_STRUCT_TERMIOX
+#cmakedefine HAVE_STRUCT_TERMIOX @HAVE_STRUCT_TERMIOX@
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
-#cmakedefine01 HAVE_SYS_STAT_H
+#cmakedefine HAVE_SYS_STAT_H @HAVE_SYS_STAT_H@
 
 /* Define to 1 if you have the <sys/types.h> header file. */
-#cmakedefine01 HAVE_SYS_TYPES_H
+#cmakedefine HAVE_SYS_TYPES_H @HAVE_SYS_TYPES_H@
 
 /* Define to 1 if you have the <unistd.h> header file. */
-#cmakedefine01 HAVE_UNISTD_H
+#cmakedefine HAVE_UNISTD_H @HAVE_UNISTD_H@
 
 /* Define to the sub-directory where libtool stores uninstalled libraries. */
 #undef LT_OBJDIR
@@ -117,7 +117,7 @@
 #undef SP_PRIV
 
 /* Define to 1 if you have the ANSI C header files. */
-#cmakedefine01 STDC_HEADERS
+#cmakedefine STDC_HEADERS @STDC_HEADERS@
 
 /* Enable large inode numbers on Mac OS X 10.5.  */
 #ifndef _DARWIN_USE_64_BIT_INODE
