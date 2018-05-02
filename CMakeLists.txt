@@ -113,3 +113,52 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake
 	${CMAKE_CURRENT_BINARY_DIR}/config.h)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/libserialport.h.cmake
 	${CMAKE_CURRENT_BINARY_DIR}/libserialport.h)
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+
+# Compile library
+set(SP_SRCS
+	"${CMAKE_CURRENT_SOURCE_DIR}/serialport.c"
+	"${CMAKE_CURRENT_SOURCE_DIR}/libserialport_internal.h")
+
+set(SP_HEADERS "${CMAKE_CURRENT_BINARY_DIR}/libserialport.h")
+
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+	set(SP_SRCS ${SP_SRCS}
+		"${CMAKE_CURRENT_SOURCE_DIR}/linux.c"
+		"${CMAKE_CURRENT_SOURCE_DIR}/linux_termios.c"
+		"${CMAKE_CURRENT_SOURCE_DIR}/linux_termios.h")
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+	set(SP_SRCS ${SP_SRCS}
+		"${CMAKE_CURRENT_SOURCE_DIR}/windows.c")
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+	set(SP_SRCS ${SP_SRCS}
+		"${CMAKE_CURRENT_SOURCE_DIR}/macosx.c")
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
+	set(SP_SRCS ${SP_SRCS}
+		"${CMAKE_CURRENT_SOURCE_DIR}/freebsd.c")
+else()
+	message(FATAL_ERROR "Unexpected host operating system")
+endif()
+
+add_library(SP_STATIC STATIC ${SP_SRCS})
+set_target_properties(SP_STATIC PROPERTIES
+	OUTPUT_NAME ${PROJECT_NAME}
+	PREFIX "lib")
+
+install(TARGETS SP_STATIC
+	RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}/bin"
+	ARCHIVE DESTINATION "${CMAKE_INSTALL_PREFIX}/lib"
+	LIBRARY DESTINATION "${CMAKE_INSTALL_PREFIX}/lib")
+
+add_library(SP_SHARED SHARED ${SP_SRCS})
+set_target_properties(SP_SHARED PROPERTIES
+	OUTPUT_NAME ${PROJECT_NAME}
+	PREFIX "lib")
+
+install(TARGETS SP_SHARED
+	RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}/bin"
+	ARCHIVE DESTINATION "${CMAKE_INSTALL_PREFIX}/lib"
+	LIBRARY DESTINATION "${CMAKE_INSTALL_PREFIX}/lib")
+
+install(FILES ${SP_HEADERS}
+	DESTINATION "${CMAKE_INSTALL_PREFIX}/include")
