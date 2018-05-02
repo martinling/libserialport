@@ -75,5 +75,35 @@ CHECK_DECL("BOTHER" "<linux/termios.h>" HAVE_DECL_BOTHER)
 
 CHECK_FUNCTION_EXISTS("realpath" HAVE_REALPATH)
 
+set(SP_SAVED_CFLAGS ${CMAKE_C_FLAGS})
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Werror")
+CHECK_C_SOURCE_COMPILES(
+	"__attribute__((visibility(\"hidden\"))) void foo(void) {} int main(void) { return 0; }"
+	HAVE_ATTRIBUTE)
+if(${HAVE_ATTRIBUTE})
+	set(SP_CV_VISIBILITY_CONTROL "attribute")
+else()
+	CHECK_C_SOURCE_COMPILES(
+		"__declspec(dllexport) void foo(void) {} int main(void) { return 0; }"
+		HAVE_DECLSPEC)
+	if(${HAVE_DECLSPEC})
+		set(SP_CV_VISIBILITY_CONTROL "declspec")
+	else()
+		set(SP_CV_VISIBILITY_CONTROL "none")
+	endif()
+endif()
+set(CMAKE_C_FLAGS ${SP_SAVED_CFLAGS})
+
+if(SP_CV_VISIBILITY_CONTROL MATCHES "attribute")
+	set(SP_API "__attribute__((visibility(\"default\")))")
+	set(SP_PRIV "__attribute__((visibility(\"hidden\")))")
+elseif(SP_CV_VISIBILITY_CONTROL MATCHES "declspec")
+	set(SP_API "__declspec(dllexport)")
+	set(SP_PRIV "")
+else()
+	set(SP_API "")
+	set(SP_PRIV "")
+endif()
+
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake
 	${CMAKE_CURRENT_BINARY_DIR}/config.h)

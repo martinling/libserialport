@@ -87,7 +87,7 @@
 #define PACKAGE_VERSION @PACKAGE_VERSION@
 
 /* Macro preceding public API functions */
-#undef SP_API
+#cmakedefine SP_API @SP_API@
 
 /* . */
 #define SP_LIB_VERSION_AGE @SP_LIB_VERSION_AGE@
@@ -114,7 +114,7 @@
 #define SP_PACKAGE_VERSION_STRING @SP_PACKAGE_VERSION_STRING@
 
 /* Macro preceding private functions */
-#undef SP_PRIV
+#cmakedefine SP_PRIV @SP_PRIV@
 
 /* Define to 1 if you have the ANSI C header files. */
 #cmakedefine STDC_HEADERS @STDC_HEADERS@
