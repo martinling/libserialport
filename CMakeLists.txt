@@ -103,10 +103,10 @@ if(SP_CV_VISIBILITY_CONTROL MATCHES "attribute")
 	set(SP_PRIV "__attribute__((visibility(\"hidden\")))")
 elseif(SP_CV_VISIBILITY_CONTROL MATCHES "declspec")
 	set(SP_API "__declspec(dllexport)")
-	set(SP_PRIV "")
+	set(SP_PRIV " ")
 else()
-	set(SP_API "")
-	set(SP_PRIV "")
+	set(SP_API " ")
+	set(SP_PRIV " ")
 endif()
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake
