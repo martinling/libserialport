@@ -125,13 +125,13 @@
 #endif
 
 /* Number of bits in a file offset, on hosts where this is settable. */
-#undef _FILE_OFFSET_BITS
+#cmakedefine _FILE_OFFSET_BITS
 
 /* Define for large files, on AIX-style hosts. */
-#undef _LARGE_FILES
+#cmakedefine _LARGE_FILES
 
 /* Define to `unsigned int' if <sys/types.h> does not define. */
-#undef size_t
+#cmakedefine size_t @SIZE_T@
 
 #if HAVE_STRUCT_TERMIOS_C_ISPEED && HAVE_STRUCT_TERMIOS_C_OSPEED
 # define HAVE_TERMIOS_SPEED 1
