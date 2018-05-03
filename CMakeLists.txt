@@ -30,8 +30,7 @@ set(PACKAGE_URL "\"http://sigrok.org/wiki/Libserialport\"")
 set(PACKAGE_STRING "\"libserialport ${SP_PACKAGE_VERSION_MAJOR}.${SP_PACKAGE_VERSION_MINOR}.${SP_PACKAGE_VERSION_MICRO}\"")
 
 # Environment variables
-set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install" CACHE PATH "Installation directory")
-set(BUILD_TEST OFF CACHE BOOL "Enable building test")
+option(BUILD_SHARED_LIBS "Build shared library" OFF)
 
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "Build configure" FORCE)
 if(DEFINED CMAKE_BUILD_TYPE)
@@ -80,7 +79,11 @@ TYPE_SIZE_T(SIZE_T)
 HEADER_STDC(STDC_HEADERS)
 
 set(SP_SAVED_CFLAGS ${CMAKE_C_FLAGS})
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Werror")
+if(MSVC)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -WX")
+else()
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Werror")
+endif()
 CHECK_C_SOURCE_COMPILES(
 	"__attribute__((visibility(\"hidden\"))) void foo(void) {} int main(void) { return 0; }"
 	HAVE_ATTRIBUTE)
@@ -140,26 +143,18 @@ else()
 	message(FATAL_ERROR "Unexpected host operating system")
 endif()
 
-add_library(SP_STATIC STATIC ${SP_SRCS})
-set_target_properties(SP_STATIC PROPERTIES
+add_library(${PROJECT_NAME} ${SP_SRCS})
+set_target_properties(${PROJECT_NAME} PROPERTIES
 	OUTPUT_NAME ${PROJECT_NAME}
 	PREFIX "lib")
 
-install(TARGETS SP_STATIC
-	RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}/bin"
-	ARCHIVE DESTINATION "${CMAKE_INSTALL_PREFIX}/lib"
-	LIBRARY DESTINATION "${CMAKE_INSTALL_PREFIX}/lib")
-
-add_library(SP_SHARED SHARED ${SP_SRCS})
-set_target_properties(SP_SHARED PROPERTIES
-	OUTPUT_NAME ${PROJECT_NAME}
-	PREFIX "lib")
-
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-	target_link_libraries(SP_SHARED setupapi)
+if(${BUILD_SHARED_LIBS})
+	if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+		target_link_libraries(${PROJECT_NAME} setupapi)
+	endif()
 endif()
 
-install(TARGETS SP_SHARED
+install(TARGETS ${PROJECT_NAME}
 	RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}/bin"
 	ARCHIVE DESTINATION "${CMAKE_INSTALL_PREFIX}/lib"
 	LIBRARY DESTINATION "${CMAKE_INSTALL_PREFIX}/lib")

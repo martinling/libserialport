@@ -253,6 +253,12 @@
 #ifndef LIBSERIALPORT_LIBSERIALPORT_H
 #define LIBSERIALPORT_LIBSERIALPORT_H
 
+#ifdef _MSC_VER
+#define SP_API @SP_API@
+#else
+#define SP_API
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -465,7 +471,7 @@ struct sp_event_set {
  *
  * @since 0.1.0
  */
-enum sp_return sp_get_port_by_name(const char *portname, struct sp_port **port_ptr);
+SP_API enum sp_return sp_get_port_by_name(const char *portname, struct sp_port **port_ptr);
 
 /**
  * Free a port structure obtained from sp_get_port_by_name() or sp_copy_port().
@@ -474,7 +480,7 @@ enum sp_return sp_get_port_by_name(const char *portname, struct sp_port **port_p
  *
  * @since 0.1.0
  */
-void sp_free_port(struct sp_port *port);
+SP_API void sp_free_port(struct sp_port *port);
 
 /**
  * List the serial ports available on the system.
@@ -495,7 +501,7 @@ void sp_free_port(struct sp_port *port);
  *
  * @since 0.1.0
  */
-enum sp_return sp_list_ports(struct sp_port ***list_ptr);
+SP_API enum sp_return sp_list_ports(struct sp_port ***list_ptr);
 
 /**
  * Make a new copy of an sp_port structure.
@@ -514,7 +520,7 @@ enum sp_return sp_list_ports(struct sp_port ***list_ptr);
  *
  * @since 0.1.0
  */
-enum sp_return sp_copy_port(const struct sp_port *port, struct sp_port **copy_ptr);
+SP_API enum sp_return sp_copy_port(const struct sp_port *port, struct sp_port **copy_ptr);
 
 /**
  * Free a port list obtained from sp_list_ports().
@@ -526,7 +532,7 @@ enum sp_return sp_copy_port(const struct sp_port *port, struct sp_port **copy_pt
  *
  * @since 0.1.0
  */
-void sp_free_port_list(struct sp_port **ports);
+SP_API void sp_free_port_list(struct sp_port **ports);
 
 /**
  * @}
@@ -547,7 +553,7 @@ void sp_free_port_list(struct sp_port **ports);
  *
  * @since 0.1.0
  */
-enum sp_return sp_open(struct sp_port *port, enum sp_mode flags);
+SP_API enum sp_return sp_open(struct sp_port *port, enum sp_mode flags);
 
 /**
  * Close the specified serial port.
@@ -558,7 +564,7 @@ enum sp_return sp_open(struct sp_port *port, enum sp_mode flags);
  *
  * @since 0.1.0
  */
-enum sp_return sp_close(struct sp_port *port);
+SP_API enum sp_return sp_close(struct sp_port *port);
 
 /**
  * Get the name of a port.
@@ -575,7 +581,7 @@ enum sp_return sp_close(struct sp_port *port);
  *
  * @since 0.1.0
  */
-char *sp_get_port_name(const struct sp_port *port);
+SP_API char *sp_get_port_name(const struct sp_port *port);
 
 /**
  * Get a description for a port, to present to end user.
@@ -588,7 +594,7 @@ char *sp_get_port_name(const struct sp_port *port);
  *
  * @since 0.1.1
  */
-char *sp_get_port_description(const struct sp_port *port);
+SP_API char *sp_get_port_description(const struct sp_port *port);
 
 /**
  * Get the transport type used by a port.
@@ -599,7 +605,7 @@ char *sp_get_port_description(const struct sp_port *port);
  *
  * @since 0.1.1
  */
-enum sp_transport sp_get_port_transport(const struct sp_port *port);
+SP_API enum sp_transport sp_get_port_transport(const struct sp_port *port);
 
 /**
  * Get the USB bus number and address on bus of a USB serial adapter port.
@@ -614,7 +620,7 @@ enum sp_transport sp_get_port_transport(const struct sp_port *port);
  *
  * @since 0.1.1
  */
-enum sp_return sp_get_port_usb_bus_address(const struct sp_port *port,
+SP_API enum sp_return sp_get_port_usb_bus_address(const struct sp_port *port,
                                            int *usb_bus, int *usb_address);
 
 /**
@@ -630,7 +636,7 @@ enum sp_return sp_get_port_usb_bus_address(const struct sp_port *port,
  *
  * @since 0.1.1
  */
-enum sp_return sp_get_port_usb_vid_pid(const struct sp_port *port, int *usb_vid, int *usb_pid);
+SP_API enum sp_return sp_get_port_usb_vid_pid(const struct sp_port *port, int *usb_vid, int *usb_pid);
 
 /**
  * Get the USB manufacturer string of a USB serial adapter port.
@@ -643,7 +649,7 @@ enum sp_return sp_get_port_usb_vid_pid(const struct sp_port *port, int *usb_vid,
  *
  * @since 0.1.1
  */
-char *sp_get_port_usb_manufacturer(const struct sp_port *port);
+SP_API char *sp_get_port_usb_manufacturer(const struct sp_port *port);
 
 /**
  * Get the USB product string of a USB serial adapter port.
@@ -656,7 +662,7 @@ char *sp_get_port_usb_manufacturer(const struct sp_port *port);
  *
  * @since 0.1.1
  */
-char *sp_get_port_usb_product(const struct sp_port *port);
+SP_API char *sp_get_port_usb_product(const struct sp_port *port);
 
 /**
  * Get the USB serial number string of a USB serial adapter port.
@@ -669,7 +675,7 @@ char *sp_get_port_usb_product(const struct sp_port *port);
  *
  * @since 0.1.1
  */
-char *sp_get_port_usb_serial(const struct sp_port *port);
+SP_API char *sp_get_port_usb_serial(const struct sp_port *port);
 
 /**
  * Get the MAC address of a Bluetooth serial adapter port.
@@ -682,7 +688,7 @@ char *sp_get_port_usb_serial(const struct sp_port *port);
  *
  * @since 0.1.1
  */
-char *sp_get_port_bluetooth_address(const struct sp_port *port);
+SP_API char *sp_get_port_bluetooth_address(const struct sp_port *port);
 
 /**
  * Get the operating system handle for a port.
@@ -714,7 +720,7 @@ char *sp_get_port_bluetooth_address(const struct sp_port *port);
  *
  * @since 0.1.0
  */
-enum sp_return sp_get_port_handle(const struct sp_port *port, void *result_ptr);
+SP_API enum sp_return sp_get_port_handle(const struct sp_port *port, void *result_ptr);
 
 /**
  * @}
@@ -747,7 +753,7 @@ enum sp_return sp_get_port_handle(const struct sp_port *port, void *result_ptr);
  *
  * @since 0.1.0
  */
-enum sp_return sp_new_config(struct sp_port_config **config_ptr);
+SP_API enum sp_return sp_new_config(struct sp_port_config **config_ptr);
 
 /**
  * Free a port configuration structure.
@@ -756,7 +762,7 @@ enum sp_return sp_new_config(struct sp_port_config **config_ptr);
  *
  * @since 0.1.0
  */
-void sp_free_config(struct sp_port_config *config);
+SP_API void sp_free_config(struct sp_port_config *config);
 
 /**
  * Get the current configuration of the specified serial port.
@@ -778,7 +784,7 @@ void sp_free_config(struct sp_port_config *config);
  *
  * @since 0.1.0
  */
-enum sp_return sp_get_config(struct sp_port *port, struct sp_port_config *config);
+SP_API enum sp_return sp_get_config(struct sp_port *port, struct sp_port_config *config);
 
 /**
  * Set the configuration for the specified serial port.
@@ -797,7 +803,7 @@ enum sp_return sp_get_config(struct sp_port *port, struct sp_port_config *config
  *
  * @since 0.1.0
  */
-enum sp_return sp_set_config(struct sp_port *port, const struct sp_port_config *config);
+SP_API enum sp_return sp_set_config(struct sp_port *port, const struct sp_port_config *config);
 
 /**
  * Set the baud rate for the specified serial port.
@@ -809,7 +815,7 @@ enum sp_return sp_set_config(struct sp_port *port, const struct sp_port_config *
  *
  * @since 0.1.0
  */
-enum sp_return sp_set_baudrate(struct sp_port *port, int baudrate);
+SP_API enum sp_return sp_set_baudrate(struct sp_port *port, int baudrate);
 
 /**
  * Get the baud rate from a port configuration.
@@ -824,7 +830,7 @@ enum sp_return sp_set_baudrate(struct sp_port *port, int baudrate);
  *
  * @since 0.1.0
  */
-enum sp_return sp_get_config_baudrate(const struct sp_port_config *config, int *baudrate_ptr);
+SP_API enum sp_return sp_get_config_baudrate(const struct sp_port_config *config, int *baudrate_ptr);
 
 /**
  * Set the baud rate in a port configuration.
@@ -836,7 +842,7 @@ enum sp_return sp_get_config_baudrate(const struct sp_port_config *config, int *
  *
  * @since 0.1.0
  */
-enum sp_return sp_set_config_baudrate(struct sp_port_config *config, int baudrate);
+SP_API enum sp_return sp_set_config_baudrate(struct sp_port_config *config, int baudrate);
 
 /**
  * Set the data bits for the specified serial port.
@@ -848,7 +854,7 @@ enum sp_return sp_set_config_baudrate(struct sp_port_config *config, int baudrat
  *
  * @since 0.1.0
  */
-enum sp_return sp_set_bits(struct sp_port *port, int bits);
+SP_API enum sp_return sp_set_bits(struct sp_port *port, int bits);
 
 /**
  * Get the data bits from a port configuration.
@@ -863,7 +869,7 @@ enum sp_return sp_set_bits(struct sp_port *port, int bits);
  *
  * @since 0.1.0
  */
-enum sp_return sp_get_config_bits(const struct sp_port_config *config, int *bits_ptr);
+SP_API enum sp_return sp_get_config_bits(const struct sp_port_config *config, int *bits_ptr);
 
 /**
  * Set the data bits in a port configuration.
@@ -875,7 +881,7 @@ enum sp_return sp_get_config_bits(const struct sp_port_config *config, int *bits
  *
  * @since 0.1.0
  */
-enum sp_return sp_set_config_bits(struct sp_port_config *config, int bits);
+SP_API enum sp_return sp_set_config_bits(struct sp_port_config *config, int bits);
 
 /**
  * Set the parity setting for the specified serial port.
@@ -887,7 +893,7 @@ enum sp_return sp_set_config_bits(struct sp_port_config *config, int bits);
  *
  * @since 0.1.0
  */
-enum sp_return sp_set_parity(struct sp_port *port, enum sp_parity parity);
+SP_API enum sp_return sp_set_parity(struct sp_port *port, enum sp_parity parity);
 
 /**
  * Get the parity setting from a port configuration.
@@ -902,7 +908,7 @@ enum sp_return sp_set_parity(struct sp_port *port, enum sp_parity parity);
  *
  * @since 0.1.0
  */
-enum sp_return sp_get_config_parity(const struct sp_port_config *config, enum sp_parity *parity_ptr);
+SP_API enum sp_return sp_get_config_parity(const struct sp_port_config *config, enum sp_parity *parity_ptr);
 
 /**
  * Set the parity setting in a port configuration.
@@ -914,7 +920,7 @@ enum sp_return sp_get_config_parity(const struct sp_port_config *config, enum sp
  *
  * @since 0.1.0
  */
-enum sp_return sp_set_config_parity(struct sp_port_config *config, enum sp_parity parity);
+SP_API enum sp_return sp_set_config_parity(struct sp_port_config *config, enum sp_parity parity);
 
 /**
  * Set the stop bits for the specified serial port.
@@ -926,7 +932,7 @@ enum sp_return sp_set_config_parity(struct sp_port_config *config, enum sp_parit
  *
  * @since 0.1.0
  */
-enum sp_return sp_set_stopbits(struct sp_port *port, int stopbits);
+SP_API enum sp_return sp_set_stopbits(struct sp_port *port, int stopbits);
 
 /**
  * Get the stop bits from a port configuration.
@@ -941,7 +947,7 @@ enum sp_return sp_set_stopbits(struct sp_port *port, int stopbits);
  *
  * @since 0.1.0
  */
-enum sp_return sp_get_config_stopbits(const struct sp_port_config *config, int *stopbits_ptr);
+SP_API enum sp_return sp_get_config_stopbits(const struct sp_port_config *config, int *stopbits_ptr);
 
 /**
  * Set the stop bits in a port configuration.
@@ -953,7 +959,7 @@ enum sp_return sp_get_config_stopbits(const struct sp_port_config *config, int *
  *
  * @since 0.1.0
  */
-enum sp_return sp_set_config_stopbits(struct sp_port_config *config, int stopbits);
+SP_API enum sp_return sp_set_config_stopbits(struct sp_port_config *config, int stopbits);
 
 /**
  * Set the RTS pin behaviour for the specified serial port.
@@ -965,7 +971,7 @@ enum sp_return sp_set_config_stopbits(struct sp_port_config *config, int stopbit
  *
  * @since 0.1.0
  */
-enum sp_return sp_set_rts(struct sp_port *port, enum sp_rts rts);
+SP_API enum sp_return sp_set_rts(struct sp_port *port, enum sp_rts rts);
 
 /**
  * Get the RTS pin behaviour from a port configuration.
@@ -980,7 +986,7 @@ enum sp_return sp_set_rts(struct sp_port *port, enum sp_rts rts);
  *
  * @since 0.1.0
  */
-enum sp_return sp_get_config_rts(const struct sp_port_config *config, enum sp_rts *rts_ptr);
+SP_API enum sp_return sp_get_config_rts(const struct sp_port_config *config, enum sp_rts *rts_ptr);
 
 /**
  * Set the RTS pin behaviour in a port configuration.
@@ -992,7 +998,7 @@ enum sp_return sp_get_config_rts(const struct sp_port_config *config, enum sp_rt
  *
  * @since 0.1.0
  */
-enum sp_return sp_set_config_rts(struct sp_port_config *config, enum sp_rts rts);
+SP_API enum sp_return sp_set_config_rts(struct sp_port_config *config, enum sp_rts rts);
 
 /**
  * Set the CTS pin behaviour for the specified serial port.
@@ -1004,7 +1010,7 @@ enum sp_return sp_set_config_rts(struct sp_port_config *config, enum sp_rts rts)
  *
  * @since 0.1.0
  */
-enum sp_return sp_set_cts(struct sp_port *port, enum sp_cts cts);
+SP_API enum sp_return sp_set_cts(struct sp_port *port, enum sp_cts cts);
 
 /**
  * Get the CTS pin behaviour from a port configuration.
@@ -1019,7 +1025,7 @@ enum sp_return sp_set_cts(struct sp_port *port, enum sp_cts cts);
  *
  * @since 0.1.0
  */
-enum sp_return sp_get_config_cts(const struct sp_port_config *config, enum sp_cts *cts_ptr);
+SP_API enum sp_return sp_get_config_cts(const struct sp_port_config *config, enum sp_cts *cts_ptr);
 
 /**
  * Set the CTS pin behaviour in a port configuration.
@@ -1031,7 +1037,7 @@ enum sp_return sp_get_config_cts(const struct sp_port_config *config, enum sp_ct
  *
  * @since 0.1.0
  */
-enum sp_return sp_set_config_cts(struct sp_port_config *config, enum sp_cts cts);
+SP_API enum sp_return sp_set_config_cts(struct sp_port_config *config, enum sp_cts cts);
 
 /**
  * Set the DTR pin behaviour for the specified serial port.
@@ -1043,7 +1049,7 @@ enum sp_return sp_set_config_cts(struct sp_port_config *config, enum sp_cts cts)
  *
  * @since 0.1.0
  */
-enum sp_return sp_set_dtr(struct sp_port *port, enum sp_dtr dtr);
+SP_API enum sp_return sp_set_dtr(struct sp_port *port, enum sp_dtr dtr);
 
 /**
  * Get the DTR pin behaviour from a port configuration.
@@ -1058,7 +1064,7 @@ enum sp_return sp_set_dtr(struct sp_port *port, enum sp_dtr dtr);
  *
  * @since 0.1.0
  */
-enum sp_return sp_get_config_dtr(const struct sp_port_config *config, enum sp_dtr *dtr_ptr);
+SP_API enum sp_return sp_get_config_dtr(const struct sp_port_config *config, enum sp_dtr *dtr_ptr);
 
 /**
  * Set the DTR pin behaviour in a port configuration.
@@ -1070,7 +1076,7 @@ enum sp_return sp_get_config_dtr(const struct sp_port_config *config, enum sp_dt
  *
  * @since 0.1.0
  */
-enum sp_return sp_set_config_dtr(struct sp_port_config *config, enum sp_dtr dtr);
+SP_API enum sp_return sp_set_config_dtr(struct sp_port_config *config, enum sp_dtr dtr);
 
 /**
  * Set the DSR pin behaviour for the specified serial port.
@@ -1082,7 +1088,7 @@ enum sp_return sp_set_config_dtr(struct sp_port_config *config, enum sp_dtr dtr)
  *
  * @since 0.1.0
  */
-enum sp_return sp_set_dsr(struct sp_port *port, enum sp_dsr dsr);
+SP_API enum sp_return sp_set_dsr(struct sp_port *port, enum sp_dsr dsr);
 
 /**
  * Get the DSR pin behaviour from a port configuration.
@@ -1097,7 +1103,7 @@ enum sp_return sp_set_dsr(struct sp_port *port, enum sp_dsr dsr);
  *
  * @since 0.1.0
  */
-enum sp_return sp_get_config_dsr(const struct sp_port_config *config, enum sp_dsr *dsr_ptr);
+SP_API enum sp_return sp_get_config_dsr(const struct sp_port_config *config, enum sp_dsr *dsr_ptr);
 
 /**
  * Set the DSR pin behaviour in a port configuration.
@@ -1109,7 +1115,7 @@ enum sp_return sp_get_config_dsr(const struct sp_port_config *config, enum sp_ds
  *
  * @since 0.1.0
  */
-enum sp_return sp_set_config_dsr(struct sp_port_config *config, enum sp_dsr dsr);
+SP_API enum sp_return sp_set_config_dsr(struct sp_port_config *config, enum sp_dsr dsr);
 
 /**
  * Set the XON/XOFF configuration for the specified serial port.
@@ -1121,7 +1127,7 @@ enum sp_return sp_set_config_dsr(struct sp_port_config *config, enum sp_dsr dsr)
  *
  * @since 0.1.0
  */
-enum sp_return sp_set_xon_xoff(struct sp_port *port, enum sp_xonxoff xon_xoff);
+SP_API enum sp_return sp_set_xon_xoff(struct sp_port *port, enum sp_xonxoff xon_xoff);
 
 /**
  * Get the XON/XOFF configuration from a port configuration.
@@ -1136,7 +1142,7 @@ enum sp_return sp_set_xon_xoff(struct sp_port *port, enum sp_xonxoff xon_xoff);
  *
  * @since 0.1.0
  */
-enum sp_return sp_get_config_xon_xoff(const struct sp_port_config *config, enum sp_xonxoff *xon_xoff_ptr);
+SP_API enum sp_return sp_get_config_xon_xoff(const struct sp_port_config *config, enum sp_xonxoff *xon_xoff_ptr);
 
 /**
  * Set the XON/XOFF configuration in a port configuration.
@@ -1148,7 +1154,7 @@ enum sp_return sp_get_config_xon_xoff(const struct sp_port_config *config, enum 
  *
  * @since 0.1.0
  */
-enum sp_return sp_set_config_xon_xoff(struct sp_port_config *config, enum sp_xonxoff xon_xoff);
+SP_API enum sp_return sp_set_config_xon_xoff(struct sp_port_config *config, enum sp_xonxoff xon_xoff);
 
 /**
  * Set the flow control type in a port configuration.
@@ -1165,7 +1171,7 @@ enum sp_return sp_set_config_xon_xoff(struct sp_port_config *config, enum sp_xon
  *
  * @since 0.1.0
  */
-enum sp_return sp_set_config_flowcontrol(struct sp_port_config *config, enum sp_flowcontrol flowcontrol);
+SP_API enum sp_return sp_set_config_flowcontrol(struct sp_port_config *config, enum sp_flowcontrol flowcontrol);
 
 /**
  * Set the flow control type for the specified serial port.
@@ -1182,7 +1188,7 @@ enum sp_return sp_set_config_flowcontrol(struct sp_port_config *config, enum sp_
  *
  * @since 0.1.0
  */
-enum sp_return sp_set_flowcontrol(struct sp_port *port, enum sp_flowcontrol flowcontrol);
+SP_API enum sp_return sp_set_flowcontrol(struct sp_port *port, enum sp_flowcontrol flowcontrol);
 
 /**
  * @}
@@ -1220,7 +1226,7 @@ enum sp_return sp_set_flowcontrol(struct sp_port *port, enum sp_flowcontrol flow
  *
  * @since 0.1.0
  */
-enum sp_return sp_blocking_read(struct sp_port *port, void *buf, size_t count, unsigned int timeout_ms);
+SP_API enum sp_return sp_blocking_read(struct sp_port *port, void *buf, size_t count, unsigned int timeout_ms);
 
 /**
  * Read bytes from the specified serial port, returning as soon as any data is
@@ -1248,7 +1254,7 @@ enum sp_return sp_blocking_read(struct sp_port *port, void *buf, size_t count, u
  *
  * @since 0.1.1
  */
-enum sp_return sp_blocking_read_next(struct sp_port *port, void *buf, size_t count, unsigned int timeout_ms);
+SP_API enum sp_return sp_blocking_read_next(struct sp_port *port, void *buf, size_t count, unsigned int timeout_ms);
 
 /**
  * Read bytes from the specified serial port, without blocking.
@@ -1263,7 +1269,7 @@ enum sp_return sp_blocking_read_next(struct sp_port *port, void *buf, size_t cou
  *
  * @since 0.1.0
  */
-enum sp_return sp_nonblocking_read(struct sp_port *port, void *buf, size_t count);
+SP_API enum sp_return sp_nonblocking_read(struct sp_port *port, void *buf, size_t count);
 
 /**
  * Write bytes to the specified serial port, blocking until complete.
@@ -1299,7 +1305,7 @@ enum sp_return sp_nonblocking_read(struct sp_port *port, void *buf, size_t count
  *
  * @since 0.1.0
  */
-enum sp_return sp_blocking_write(struct sp_port *port, const void *buf, size_t count, unsigned int timeout_ms);
+SP_API enum sp_return sp_blocking_write(struct sp_port *port, const void *buf, size_t count, unsigned int timeout_ms);
 
 /**
  * Write bytes to the specified serial port, without blocking.
@@ -1320,7 +1326,7 @@ enum sp_return sp_blocking_write(struct sp_port *port, const void *buf, size_t c
  *
  * @since 0.1.0
  */
-enum sp_return sp_nonblocking_write(struct sp_port *port, const void *buf, size_t count);
+SP_API enum sp_return sp_nonblocking_write(struct sp_port *port, const void *buf, size_t count);
 
 /**
  * Gets the number of bytes waiting in the input buffer.
@@ -1331,7 +1337,7 @@ enum sp_return sp_nonblocking_write(struct sp_port *port, const void *buf, size_
  *
  * @since 0.1.0
  */
-enum sp_return sp_input_waiting(struct sp_port *port);
+SP_API enum sp_return sp_input_waiting(struct sp_port *port);
 
 /**
  * Gets the number of bytes waiting in the output buffer.
@@ -1342,7 +1348,7 @@ enum sp_return sp_input_waiting(struct sp_port *port);
  *
  * @since 0.1.0
  */
-enum sp_return sp_output_waiting(struct sp_port *port);
+SP_API enum sp_return sp_output_waiting(struct sp_port *port);
 
 /**
  * Flush serial port buffers. Data in the selected buffer(s) is discarded.
@@ -1354,7 +1360,7 @@ enum sp_return sp_output_waiting(struct sp_port *port);
  *
  * @since 0.1.0
  */
-enum sp_return sp_flush(struct sp_port *port, enum sp_buffer buffers);
+SP_API enum sp_return sp_flush(struct sp_port *port, enum sp_buffer buffers);
 
 /**
  * Wait for buffered data to be transmitted.
@@ -1372,7 +1378,7 @@ enum sp_return sp_flush(struct sp_port *port, enum sp_buffer buffers);
  *
  * @since 0.1.0
  */
-enum sp_return sp_drain(struct sp_port *port);
+SP_API enum sp_return sp_drain(struct sp_port *port);
 
 /**
  * @}
@@ -1400,7 +1406,7 @@ enum sp_return sp_drain(struct sp_port *port);
  *
  * @since 0.1.0
  */
-enum sp_return sp_new_event_set(struct sp_event_set **result_ptr);
+SP_API enum sp_return sp_new_event_set(struct sp_event_set **result_ptr);
 
 /**
  * Add events to a struct sp_event_set for a given port.
@@ -1419,7 +1425,7 @@ enum sp_return sp_new_event_set(struct sp_event_set **result_ptr);
  *
  * @since 0.1.0
  */
-enum sp_return sp_add_port_events(struct sp_event_set *event_set,
+SP_API enum sp_return sp_add_port_events(struct sp_event_set *event_set,
 	const struct sp_port *port, enum sp_event mask);
 
 /**
@@ -1432,7 +1438,7 @@ enum sp_return sp_add_port_events(struct sp_event_set *event_set,
  *
  * @since 0.1.0
  */
-enum sp_return sp_wait(struct sp_event_set *event_set, unsigned int timeout_ms);
+SP_API enum sp_return sp_wait(struct sp_event_set *event_set, unsigned int timeout_ms);
 
 /**
  * Free a structure allocated by sp_new_event_set().
@@ -1441,7 +1447,7 @@ enum sp_return sp_wait(struct sp_event_set *event_set, unsigned int timeout_ms);
  *
  * @since 0.1.0
  */
-void sp_free_event_set(struct sp_event_set *event_set);
+SP_API void sp_free_event_set(struct sp_event_set *event_set);
 
 /**
  * @}
@@ -1469,7 +1475,7 @@ void sp_free_event_set(struct sp_event_set *event_set);
  *
  * @since 0.1.0
  */
-enum sp_return sp_get_signals(struct sp_port *port, enum sp_signal *signal_mask);
+SP_API enum sp_return sp_get_signals(struct sp_port *port, enum sp_signal *signal_mask);
 
 /**
  * Put the port transmit line into the break state.
@@ -1480,7 +1486,7 @@ enum sp_return sp_get_signals(struct sp_port *port, enum sp_signal *signal_mask)
  *
  * @since 0.1.0
  */
-enum sp_return sp_start_break(struct sp_port *port);
+SP_API enum sp_return sp_start_break(struct sp_port *port);
 
 /**
  * Take the port transmit line out of the break state.
@@ -1491,7 +1497,7 @@ enum sp_return sp_start_break(struct sp_port *port);
  *
  * @since 0.1.0
  */
-enum sp_return sp_end_break(struct sp_port *port);
+SP_API enum sp_return sp_end_break(struct sp_port *port);
 
 /**
  * @}
@@ -1516,7 +1522,7 @@ enum sp_return sp_end_break(struct sp_port *port);
  *
  * @since 0.1.0
  */
-int sp_last_error_code(void);
+SP_API int sp_last_error_code(void);
 
 /**
  * Get the error message for a failed operation.
@@ -1532,7 +1538,7 @@ int sp_last_error_code(void);
  *
  * @since 0.1.0
  */
-char *sp_last_error_message(void);
+SP_API char *sp_last_error_message(void);
 
 /**
  * Free an error message returned by sp_last_error_message().
@@ -1541,7 +1547,7 @@ char *sp_last_error_message(void);
  *
  * @since 0.1.0
  */
-void sp_free_error_message(char *message);
+SP_API void sp_free_error_message(char *message);
 
 /**
  * Set the handler function for library debugging messages.
@@ -1560,7 +1566,7 @@ void sp_free_error_message(char *message);
  *
  * @since 0.1.0
  */
-void sp_set_debug_handler(void (*handler)(const char *format, ...));
+SP_API void sp_set_debug_handler(void (*handler)(const char *format, ...));
 
 /**
  * Default handler function for library debugging messages.
@@ -1574,7 +1580,7 @@ void sp_set_debug_handler(void (*handler)(const char *format, ...));
  *
  * @since 0.1.0
  */
-void sp_default_debug_handler(const char *format, ...);
+SP_API void sp_default_debug_handler(const char *format, ...);
 
 /** @} */
 
@@ -1637,7 +1643,7 @@ void sp_default_debug_handler(const char *format, ...);
  *
  * @since 0.1.0
  */
-int sp_get_major_package_version(void);
+SP_API int sp_get_major_package_version(void);
 
 /**
  * Get the minor libserialport package version number.
@@ -1646,7 +1652,7 @@ int sp_get_major_package_version(void);
  *
  * @since 0.1.0
  */
-int sp_get_minor_package_version(void);
+SP_API int sp_get_minor_package_version(void);
 
 /**
  * Get the micro libserialport package version number.
@@ -1655,7 +1661,7 @@ int sp_get_minor_package_version(void);
  *
  * @since 0.1.0
  */
-int sp_get_micro_package_version(void);
+SP_API int sp_get_micro_package_version(void);
 
 /**
  * Get the libserialport package version number as a string.
@@ -1665,7 +1671,7 @@ int sp_get_micro_package_version(void);
  *
  * @since 0.1.0
  */
-const char *sp_get_package_version_string(void);
+SP_API const char *sp_get_package_version_string(void);
 
 /**
  * Get the "current" part of the libserialport library version number.
@@ -1674,7 +1680,7 @@ const char *sp_get_package_version_string(void);
  *
  * @since 0.1.0
  */
-int sp_get_current_lib_version(void);
+SP_API int sp_get_current_lib_version(void);
 
 /**
  * Get the "revision" part of the libserialport library version number.
@@ -1683,7 +1689,7 @@ int sp_get_current_lib_version(void);
  *
  * @since 0.1.0
  */
-int sp_get_revision_lib_version(void);
+SP_API int sp_get_revision_lib_version(void);
 
 /**
  * Get the "age" part of the libserialport library version number.
@@ -1692,7 +1698,7 @@ int sp_get_revision_lib_version(void);
  *
  * @since 0.1.0
  */
-int sp_get_age_lib_version(void);
+SP_API int sp_get_age_lib_version(void);
 
 /**
  * Get the libserialport library version number as a string.
@@ -1702,7 +1708,7 @@ int sp_get_age_lib_version(void);
  *
  * @since 0.1.0
  */
-const char *sp_get_lib_version_string(void);
+SP_API const char *sp_get_lib_version_string(void);
 
 /** @} */
 
