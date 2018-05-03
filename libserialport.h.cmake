@@ -256,7 +256,9 @@
 #ifdef _MSC_VER
 #define SP_API @SP_API@
 #else
+#ifndef SP_API
 #define SP_API
+#endif
 #endif
 
 #ifdef __cplusplus
