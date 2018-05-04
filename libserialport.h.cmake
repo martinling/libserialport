@@ -253,10 +253,10 @@
 #ifndef LIBSERIALPORT_LIBSERIALPORT_H
 #define LIBSERIALPORT_LIBSERIALPORT_H
 
+#ifndef SP_API
 #ifdef _MSC_VER
 #define SP_API @SP_API@
 #else
-#ifndef SP_API
 #define SP_API
 #endif
 #endif
