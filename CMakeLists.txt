@@ -146,8 +146,7 @@ endif()
 
 add_library(${PROJECT_NAME} ${SP_SRCS})
 set_target_properties(${PROJECT_NAME} PROPERTIES
-	OUTPUT_NAME ${PROJECT_NAME}
-	PREFIX "lib")
+	OUTPUT_NAME ${PROJECT_NAME})
 
 if(${BUILD_SHARED_LIBS})
 	if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
