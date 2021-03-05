@@ -73,20 +73,6 @@ SP_API enum sp_return sp_get_port_by_name(const char *portname, struct sp_port *
 
 	DEBUG_FMT("Building structure for port %s", portname);
 
-#if !defined(_WIN32) && defined(HAVE_REALPATH)
-	/*
-	 * get_port_details() below tries to be too smart and figure out
-	 * some transport properties from the port name which breaks with
-	 * symlinks. Therefore we canonicalize the portname first.
-	 */
-	char pathbuf[PATH_MAX + 1];
-	char *res = realpath(portname, pathbuf);
-	if (!res)
-		RETURN_ERROR(SP_ERR_ARG, "Could not retrieve realpath behind port name");
-
-	portname = pathbuf;
-#endif
-
 	if (!(port = malloc(sizeof(struct sp_port))))
 		RETURN_ERROR(SP_ERR_MEM, "Port structure malloc failed");
 
@@ -155,10 +141,7 @@ SP_API enum sp_transport sp_get_port_transport(const struct sp_port *port)
 {
 	TRACE("%p", port);
 
-	if (!port)
-		RETURN_ERROR(SP_ERR_ARG, "Null port");
-
-	RETURN_INT(port->transport);
+	RETURN_INT(port ? port->transport : SP_TRANSPORT_NATIVE);
 }
 
 SP_API enum sp_return sp_get_port_usb_bus_address(const struct sp_port *port,
@@ -551,6 +534,39 @@ SP_API enum sp_return sp_open(struct sp_port *port, enum sp_mode flags)
 
 	if ((port->fd = open(port->name, flags_local)) < 0)
 		RETURN_FAIL("open() failed");
+
+	/*
+	 * On POSIX in the default case the file descriptor of a serial port
+	 * is not opened exclusively. Therefore the settings of a port are
+	 * overwritten if the serial port is opened a second time. Windows
+	 * opens all serial ports exclusively.
+	 * So the idea is to open the serial ports alike in the exclusive mode.
+	 *
+	 * ioctl(*, TIOCEXCL) defines the file descriptor as exclusive. So all
+	 * further open calls on the serial port will fail.
+	 *
+	 * There is a race condition if two processes open the same serial
+	 * port. None of the processes will notice the exclusive ownership of
+	 * the other process because ioctl() doesn't return an error code if
+	 * the file descriptor is already marked as exclusive.
+	 * This can be solved with flock(). It returns an error if the file
+	 * descriptor is already locked by another process.
+	 */
+#ifdef HAVE_FLOCK
+	if (flock(port->fd, LOCK_EX | LOCK_NB) < 0)
+		RETURN_FAIL("flock() failed");
+#endif
+
+#ifdef TIOCEXCL
+	/*
+	 * Before Linux 3.8 ioctl(*, TIOCEXCL) was not implemented and could
+	 * lead to EINVAL or ENOTTY.
+	 * These errors aren't fatal and can be ignored.
+	 */
+	if (ioctl(port->fd, TIOCEXCL) < 0 && errno != EINVAL && errno != ENOTTY)
+		RETURN_FAIL("ioctl() failed");
+#endif
+
 #endif
 
 	ret = get_config(port, &data, &config);
@@ -603,7 +619,8 @@ SP_API enum sp_return sp_open(struct sp_port *port, enum sp_mode flags)
 	data.term.c_cc[VTIME] = 0;
 
 	/* Ignore modem status lines; enable receiver; leave control lines alone on close. */
-	data.term.c_cflag |= (CLOCAL | CREAD | HUPCL);
+	data.term.c_cflag |= (CLOCAL | CREAD);
+	data.term.c_cflag &= ~(HUPCL);
 #endif
 
 #ifdef _WIN32
